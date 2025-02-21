@@ -1,6 +1,15 @@
 {
 	"name": "tinymce",
+	"version": "7.2.1",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tinymce/tinymce.git",
+		"directory": "modules/tinymce"
+	},
 	"description": "Web based JavaScript HTML WYSIWYG editor control.",
+	"author": "Ephox Corporation DBA Tiny Technologies, Inc",
+	"main": "tinymce.js",
+	"types": "tinymce.d.ts",
 	"license": "GPL-2.0-or-later",
 	"keywords": [
 		"wysiwyg",
@@ -17,11 +26,7 @@
 		"editing"
 	],
 	"homepage": "https://www.tiny.cloud/",
-	"ignore": [
-		"README.md",
-		"composer.json",
-		"package.json",
-		".npmignore",
-		"CHANGELOG.md"
-	]
+	"bugs": {
+		"url": "https://github.com/tinymce/tinymce/issues"
+	}
 }
