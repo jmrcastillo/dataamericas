@@ -1,0 +1,22 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+.sphere {
+  fill: #e0f7fa;
+}
+
+.country {
+  fill: #b2dfdb;
+  stroke: #00796b;
+  stroke-width: 0.5px;
+}
+
+.country:hover {
+  fill: #004d40;
+}
+
+svg {
+  margin: 0 auto;
+  display: block;
+}
