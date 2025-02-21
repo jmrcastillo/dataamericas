@@ -1,0 +1,264 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .map-container {
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .card-title {
+            text-align: center;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1.92 / 1;
+            display: block;
+        }
+
+        .sphere {
+            fill: #d0e7f9;
+        }
+
+        .country {
+            fill: lightgray;
+            stroke: white;
+            stroke-width: 0.5;
+            cursor: pointer;
+            transition: fill 0.3s ease;
+        }
+
+        .country:hover {
+            fill: orange;
+        }
+
+        @media (max-width: 768px) {
+            .map-container {
+                padding: 10px;
+            }
+
+            .country {
+                stroke-width: 0.3;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .map-container {
+                padding: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="map-container">
+        <h5 class="card-title">Click on the map for country data</h5>
+        <svg></svg>
+    </div>
+
+    <script type="module">
+        import { select, json, tsv, geoPath, geoNaturalEarth1 } from 'https://unpkg.com/d3@7.8.2?module';
+        import { feature } from 'https://unpkg.com/topojson@3?module';
+
+        // Function to handle responsive behavior
+        function createResponsiveMap() {
+            const container = select('.map-container');
+            const svg = select('svg');
+            
+            // Clear existing content
+            svg.selectAll('*').remove();
+
+            // Get container dimensions
+            const width = container.node().getBoundingClientRect().width;
+            const height = width / 1.92; // Maintain aspect ratio
+
+            // Update projection
+            const projection = geoNaturalEarth1()
+                .fitSize([width, height], { type: 'Sphere' });
+            const pathGenerator = geoPath().projection(projection);
+
+            // Create sphere
+            svg.append('path')
+                .attr('class', 'sphere')
+                .attr('d', pathGenerator({ type: 'Sphere' }));
+
+            // Load and render data
+            Promise.all([
+                tsv('https://unpkg.com/world-atlas@1.1.4/world/110m.tsv'),
+                json('https://unpkg.com/world-atlas@1.1.4/world/110m.json')
+            ]).then(([tsvData, topoJSONdata]) => {
+                const countryName = {};
+                tsvData.forEach(d => {
+                    countryName[d.iso_n3] = d.name;
+                });
+
+                const countries = feature(topoJSONdata, topoJSONdata.objects.countries);
+
+                svg.selectAll('path.country')
+                    .data(countries.features)
+                    .enter().append('path')
+                    .attr('class', 'country')
+                    .attr('d', pathGenerator)
+                    .attr('title', d => countryName[d.id])
+                    .on('click', (event, d) => {
+                        const country = countryName[d.id] || d.id;
+                        window.location.href = `{% url 'countries' %}?name=${encodeURIComponent(country)}`;
+                    })
+                    .append('title')
+                    .text(d => countryName[d.id] || d.id);
+            });
+        }
+
+        // Initial render
+        createResponsiveMap();
+
+        // Handle window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(createResponsiveMap, 250);
+        });
+    </script>
+</body>
+</html>
+{% comment %} <html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clickable World Map</title>
+  <style>
+    .sphere {
+      fill: #d0e7f9;
+    }
+    .country {
+      fill: lightgray;
+      stroke: white;
+      cursor: pointer;
+    }
+    .country:hover {
+      fill: orange; /* Highlight on hover */
+    }
+  </style>
+</head>
+<body>
+  <svg width="960" height="500"></svg>
+  <script type="module">
+    import { select, json, tsv, geoPath, geoNaturalEarth1 } from 'https://unpkg.com/d3@7.8.2?module';
+    import { feature } from 'https://unpkg.com/topojson@3?module';
+
+    const svg = select('svg');
+
+    const projection = geoNaturalEarth1();
+    const pathGenerator = geoPath().projection(projection);
+
+    svg.append('path')
+      .attr('class', 'sphere')
+      .attr('d', pathGenerator({ type: 'Sphere' }));
+
+    Promise.all([
+      tsv('https://unpkg.com/world-atlas@1.1.4/world/110m.tsv'),
+      json('https://unpkg.com/world-atlas@1.1.4/world/110m.json')
+    ]).then(([tsvData, topoJSONdata]) => {
+      const countryName = {};
+      tsvData.forEach(d => {
+        countryName[d.iso_n3] = d.name;
+      });
+
+      const countries = feature(topoJSONdata, topoJSONdata.objects.countries);
+
+      svg.selectAll('path')
+        .data(countries.features)
+        .enter().append('path')
+        .attr('class', 'country')
+        .attr('d', pathGenerator)
+        .attr('title', d => countryName[d.id])
+        .on('click', d => {
+          const country = countryName[d.id] || 'Unknown';
+          // Redirect to a new page based on the country name
+          window.location.href = `./country.html?country=${encodeURIComponent(country)}`;
+        })
+        .append('title')
+        .text(d => countryName[d.id]);
+    });
+  </script>
+</body>
+</html> {% endcomment %}
+
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive World Map</title>
+  <link rel="stylesheet" href="styles.css">
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/world.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'js/global.js' %}">
+</head>
+<body>
+  <svg width="960" height="500"></svg>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="https://unpkg.com/topojson@3"></script>
+
+
+
+  <title>World Map</title>
+  <style>
+    .sphere {
+      fill: #d0e7f9;
+    }
+    .country {
+      fill: lightgray;
+      stroke: white;
+    }
+  </style>
+</head>
+<body>
+  <svg width="960" height="500"></svg>
+  <script type="module">
+    import { select, json, tsv, geoPath, geoNaturalEarth1 } from 'https://unpkg.com/d3@7.8.2?module';
+    import { feature } from 'https://unpkg.com/topojson@3?module';
+
+    const svg = select('svg');
+
+    const projection = geoNaturalEarth1();
+    const pathGenerator = geoPath().projection(projection);
+
+    svg.append('path')
+      .attr('class', 'sphere')
+      .attr('d', pathGenerator({ type: 'Sphere' }));
+
+    Promise.all([
+      tsv('https://unpkg.com/world-atlas@1.1.4/world/110m.tsv'),
+      json('https://unpkg.com/world-atlas@1.1.4/world/110m.json')
+    ]).then(([tsvData, topoJSONdata]) => {
+      const countryName = {};
+      tsvData.forEach(d => {
+        countryName[d.iso_n3] = d.name;
+      });
+
+      const countries = feature(topoJSONdata, topoJSONdata.objects.countries);
+      svg.selectAll('path').data(countries.features)
+        .enter().append('path')
+        .attr('class', 'country')
+        .attr('d', pathGenerator)
+        .append('title')
+        .text(d => countryName[d.id]);
+    });
+  </script>
+</body>
+
+
+
+
+</html> {% endcomment %}

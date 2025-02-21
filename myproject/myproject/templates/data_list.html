@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data List</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+    </style>
+    <script>
+        // Example D3.js code to create a simple bar chart
+        const data = [
+            {source: 'CSV', value: 10},
+            {source: 'API', value: 20},
+            {source: 'Link', value: 30}
+        ];
+    
+        const width = 500;
+        const height = 300;
+        const margin = {top: 20, right: 30, bottom: 40, left: 40};
+    
+        const svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+    
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.source))
+            .range([margin.left, width - margin.right])
+            .padding(0.1);
+    
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.value)]).nice()
+            .range([height - margin.bottom, margin.top]);
+    
+        svg.append("g")
+            .attr("fill", "steelblue")
+          .selectAll("rect")
+          .data(data)
+          .join("rect")
+            .attr("x", d => x(d.source))
+            .attr("y", d => y(d.value))
+            .attr("height", d => y(0) - y(d.value))
+            .attr("width", x.bandwidth());
+    
+        svg.append("g")
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x));
+    
+        svg.append("g")
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y));
+    </script>
+</head>
+<body>
+    <h1>Data List</h1>
+    <table>
+        <tr>
+            <th>Source</th>
+            <th>Content</th>
+            <th>Created At</th>
+        </tr>
+        {% for item in data %}
+        <tr>
+            <td>{{ item.source }}</td>
+            <td>{{ item.content }}</td>
+            <td>{{ item.created_at }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

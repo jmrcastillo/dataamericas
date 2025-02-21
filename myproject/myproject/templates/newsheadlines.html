@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>News and Data</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" >
+
+</head>
+<body>
+    {% comment %} <h1>Database Data</h1>
+    <ul>
+        {% for item in data %}
+            <li>{{ item }}</li>
+        {% endfor %}
+    </ul> {% endcomment %}
+
+    <h1>Headlines</h1>
+    <ul>
+        {% for article in articles|slice:":10" %}
+            <li>
+                <a href="{{ article.web_url }}">{{ article.headline.main }}</a>
+                <p>{{ article.snippet }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
