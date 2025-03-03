@@ -16,8 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.conf import settings 
-from django.conf.urls.static import static 
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 
@@ -26,24 +26,29 @@ urlpatterns = [
     path('index/', views.index, name='index'),
     path('tablesdata/', views.tablesdata, name='tablesdata'),
     path('tablesgeneral/', views.tablesgeneral, name='tablesgeneral'),
-    
+
     path('chartschartjs/', views.chartschartjs, name='chartschartjs'),
     path('chartsapexcharts/', views.chartsapexcharts, name='chartsapexcharts'),
     path('chartsecharts/', views.chartsecharts, name='chartsecharts'),
-     
+
     path('usersprofile/', views.usersprofile, name='usersprofile'),
     path('pagescontact/', views.pagescontact, name='pagescontact'),
     path('pagesregister/', views.pagesregister, name='pagesregister'),
     path('pageslogin/', views.pageslogin, name='pageslogin'),
-     
+
     path('countries/', views.countries, name='countries'),
     path('unitedstates/', views.countries, name='unitedstates'),
-    
+
     path('home/', views.home, name='home'),
     path('newsheadlines/', views.index, name='index'),
-    
+
     path('upload_csv/', views.upload_csv, name='upload_csv'),
     path('fetch_data/', views.fetch_data, name='fetch_data'),
     path('data_list/', views.data_list, name='data_list'),
+    # API
+    path('', include('users.urls')),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 

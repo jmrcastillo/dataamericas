@@ -25,26 +25,49 @@ from django.db import models
 #Step 1: Create users app structure
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import User
 
-class CustomUser(AbstractUser):
-    # Add custom fields if needed
-    pass
+
+# class CustomUser(AbstractUser):
+    # # Add custom fields if needed
+    # class Meta:
+        # app_label = 'users'  # Explicitly define the app label
+
 
 # users/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import CustomUser
+# from .models import CustomUser
+from django.contrib.auth import get_user_model
 
-class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    
-    class Meta:
-        model = CustomUser
-        fields = ['username', 'email', 'password1', 'password2']
 
-class UserLoginForm(AuthenticationForm):
-    class Meta:
-        model = CustomUser
+# class UserRegistrationForm(UserCreationForm):
+    # email = forms.EmailField(required=True)
+
+    # class Meta:
+        # model = CustomUser
+        # fields = ['username', 'email', 'password1', 'password2']
+
+# class UserLoginForm(AuthenticationForm):
+    # class Meta:
+        # model = CustomUser
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Link to Django User
+    full_name = models.CharField(max_length=255)
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)  # New image field
+    # about = models.CharField(max_length=255, blank=True, default="")
+    about = models.TextField(blank=True, default="")
+    company = models.CharField(max_length=255, blank=True, default="")
+    job_title = models.CharField(max_length=255, blank=True, default="")
+    country = models.CharField(max_length=100, blank=True, default="")
+    address = models.CharField(max_length=100, blank=True, default="")
+    phone = models.CharField(max_length=20, blank=True, default="")
+
+    def __str__(self):
+        return self.user.username
+
 
 # users/views.py
 from django.shortcuts import render, redirect
@@ -57,11 +80,13 @@ def register_view(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
+            print("Valid Form")
             user = form.save()
             login(request, user)
             messages.success(request, 'Registration successful!')
             return redirect('home')
         else:
+            print("Invalid Form")
             messages.error(request, 'Registration failed. Please correct the errors.')
     else:
         form = UserRegistrationForm()
