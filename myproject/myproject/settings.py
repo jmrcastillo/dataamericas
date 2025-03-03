@@ -84,39 +84,39 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-# ENV
-# env = environ.Env()
-# environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-
-# Database
 # DATABASES = {
     # 'default': {
-        # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # 'NAME': env('DB_NAME'),
-        # 'USER': env('DB_USER'),
-        # 'PASSWORD': env('DB_PASS'),
-        # 'HOST': '127.0.0.1',
-        # 'PORT': '5432'
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
     # }
 # }
 
+# Database & Env
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DB_NAME', 'data_americas'),
-        'USER': os.environ.get('DB_USER', 'admin'),
-        'PASSWORD': os.environ.get('DB_PASS','admin112'),
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASS'),
         'HOST': '127.0.0.1',
         'PORT': '5432'
     }
 }
+
+# DATABASES = {
+    # 'default': {
+        # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        # 'NAME': os.environ.get('DB_NAME', 'data_americas'),
+        # 'USER': os.environ.get('DB_USER', 'admin'),
+        # 'PASSWORD': os.environ.get('DB_PASS','admin112'),
+        # 'HOST': '127.0.0.1',
+        # 'PORT': '5432'
+    # }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
