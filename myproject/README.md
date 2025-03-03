@@ -1,9 +1,4 @@
-
-
-<<<<<<< HEAD
 # Data Americas
-=======
-# Django Project
 
 ## Installation Local
 
