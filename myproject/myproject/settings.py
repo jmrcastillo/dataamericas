@@ -91,11 +91,10 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
     # }
 # }
 
-# Database & Env
+# Postgresql & Env Variable
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
