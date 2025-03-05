@@ -82,13 +82,15 @@ def user_profile_view(request):
                 messages.error(request, "Please correct the errors below.")
 
         else:  # If profile update form is submitted
-            form = UserProfileForm(request.POST, instance=user_profile)
+            form = UserProfileForm(request.POST,request.FILES, instance=user_profile)
             if form.is_valid():
                 form.save()
                 messages.success(request, "Profile updated successfully!")
                 return redirect('user_profile')
             else:
                 messages.error(request, "Please fix the errors below.")
+    else:
+        form = UserProfileForm(instance=user_profile)
 
     return render(request, 'users/profile.html', {
         'form': form,

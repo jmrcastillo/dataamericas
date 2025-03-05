@@ -29,6 +29,7 @@ class UserLoginForm(AuthenticationForm):
 
 class UserProfileForm(forms.ModelForm):
     email = forms.EmailField(required=True)  # Add email field
+    profile_image = forms.ImageField(required=False)  # Add image field
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -38,20 +39,28 @@ class UserProfileForm(forms.ModelForm):
     def save(self, commit=True):
         user = self.instance.user
         user.email = self.cleaned_data['email']  # Update email
+        # user.profile_image = self.cleaned_data['profile_image']  # Update Image
         if commit:
             user.save()
+            if self.cleaned_data.get("profile_image"):  # Only update if a new image is uploaded
+                self.instance.profile_image = self.cleaned_data["profile_image"]
+            # self.instance.profile_image = self.cleaned_data.get("profile_image", self.instance.profile_image)
             self.instance.save()
         return self.instance
 
     class Meta:
         model = UserProfile
-        fields = ['full_name', 'email', 'company', 'job_title', 'country', 'address', 'phone', 'about']
+        fields = ['full_name', 'email','profile_image', 'company', 'job_title', 'country', 'address', 'phone', 'about']
         widgets = {
             'about': forms.Textarea(attrs={
                 'rows': 5,
                 'cols': 50,
                 'placeholder': 'Tell us about yourself...',
                 'class': 'form-control',
+            }),
+            'email': forms.TextInput(attrs={
+                'class': 'form-control',  # This applies Bootstrap styling
+                'placeholder': 'Email',
             }),
             'full_name': forms.TextInput(attrs={
                 'class': 'form-control',  # This applies Bootstrap styling
