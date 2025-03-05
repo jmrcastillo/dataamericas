@@ -2,17 +2,14 @@
 
 # # Create your views here.
 # users/views.py
-from rest_framework import views
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 # from .forms import UserRegistrationForm, UserLoginForm
 from .forms import UserRegistrationForm, UserLoginForm, UserProfileForm
-from .serializers import UserRegistrationSerializer, UserLoginSerializer
-from rest_framework.response import Response
 from .models import UserProfile
-from rest_framework import serializers, views, status
+from django.contrib.auth.forms import PasswordChangeForm
 
 import logging
 
@@ -27,7 +24,7 @@ def register_view(request):    # This was missing
             user = form.save()
 
             # Create an empty UserProfile associated with this user
-            UserProfile.objects.create(user=user)
+            # UserProfile.objects.create(user=user)
 
             login(request, user)
             messages.success(request, 'Registration successful!')
@@ -46,6 +43,7 @@ def login_view(request):
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
+            logger.info("✅ Login Succesfully")  # Logs output
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Welcome back, {username}!')
@@ -68,22 +66,55 @@ def logout_view(request):
 
 @login_required
 def user_profile_view(request):
-    # user_profile, created = UserProfile.objects.get_or_create(user=request.user)
-    user_profile = request.user.userprofile
+    user_profile = request.user.userprofile  # Ensure this exists
+    form = UserProfileForm(instance=user_profile)  # Initialize form here
+    password_form = PasswordChangeForm(request.user)  # Initialize password form here
 
     if request.method == 'POST':
-        print("POST Data:", request.POST)  # Debugging step
-        form = UserProfileForm(request.POST, instance=user_profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Profile updated successfully!")
-            return redirect('user_profile')
-    else:
-        form = UserProfileForm(instance=user_profile)
+        if 'change_password' in request.POST:  # If password change form is submitted
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)  # Keep user logged in
+                messages.success(request, "Your password has been changed successfully!")
+                return redirect('user_profile')
+            else:
+                messages.error(request, "Please correct the errors below.")
 
-    return render(request, 'users/profile.html', {'form': form,
-                                                  'email': request.user.email,
-                                                  'profile': user_profile})
+        else:  # If profile update form is submitted
+            form = UserProfileForm(request.POST, instance=user_profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Profile updated successfully!")
+                return redirect('user_profile')
+            else:
+                messages.error(request, "Please fix the errors below.")
+
+    return render(request, 'users/profile.html', {
+        'form': form,
+        'password_form': password_form,
+        'email': request.user.email,
+        'profile': user_profile
+    })
+
+# @login_required
+# def user_profile_view(request):
+    # # user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    # user_profile = request.user.userprofile
+
+    # if request.method == 'POST':
+        # print("POST Data:", request.POST)  # Debugging step
+        # form = UserProfileForm(request.POST, instance=user_profile)
+        # if form.is_valid():
+            # form.save()
+            # messages.success(request, "Profile updated successfully!")
+            # return redirect('user_profile')
+    # else:
+        # form = UserProfileForm(instance=user_profile)
+
+    # return render(request, 'users/profile.html', {'form': form,
+                                                  # 'email': request.user.email,
+                                                  # 'profile': user_profile})
 
 @login_required
 def upload_profile_image(request):
